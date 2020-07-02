@@ -27,7 +27,7 @@ x, y = data['wind_speed'].metpy.coordinates('x', 'y')
 time = data['wind_speed'].metpy.time
 
 # Select the data for this time
-time_idx = 3
+time_idx = 2
 data_month = data.isel(time=time_idx)
 
 # Create the matplotlib figure and axis
@@ -62,5 +62,7 @@ gl.ylabels_right = False
 # Set a title and show the plot
 ax.set_title('Wind speed (m/s) and direction at '
              + time[time_idx].dt.strftime('%Y-%m').item())
-plt.show()
+# plt.tight_layout()
+time_title = time[time_idx].dt.strftime('%Y%m').item()
+fig.savefig(f'kepri_{time_title}_angin_metpy.png', bbox_inches='tight')
 
