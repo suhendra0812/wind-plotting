@@ -27,26 +27,29 @@ x, y = data['wind_speed'].metpy.coordinates('x', 'y')
 time = data['wind_speed'].metpy.time
 
 # Select the data for this time
-data_month = data.isel(time=0)
+time_idx = 3
+data_month = data.isel(time=time_idx)
 
 # Create the matplotlib figure and axis
 fig, ax = plt.subplots(1, 1, figsize=(12, 8), subplot_kw={'projection': data_crs})
 
 # Add geographic features
-ax.add_feature(cfeature.LAND.with_scale('50m'), facecolor=cfeature.COLORS['land'])
-ax.add_feature(cfeature.OCEAN.with_scale('50m'), facecolor=cfeature.COLORS['water'])
-ax.add_feature(cfeature.STATES.with_scale('50m'), edgecolor='#c7c783', zorder=0)
-ax.add_feature(cfeature.LAKES.with_scale('50m'), facecolor=cfeature.COLORS['water'],
-               edgecolor='#c7c783', zorder=0)
+ax.add_feature(cfeature.LAND.with_scale('10m'), facecolor=cfeature.COLORS['land'], zorder=1)
+ax.add_feature(cfeature.COASTLINE.with_scale('10m'), edgecolor='black', zorder=1)
 
 # Plot wind speed as filled contours
 levels = np.arange(0,11)
 c = ax.contourf(x, y, data_month['wind_speed'], cmap='jet')
 fig.colorbar(c)
 
+# Normalise the data for uniform arrow size
+u = data_month['u']
+v = data_month['v']
+u_norm = u / np.sqrt(u ** 2.0 + v ** 2.0)
+v_norm = v / np.sqrt(u ** 2.0 + v ** 2.0)
+
 # Plot wind quiver
-q = ax.quiver(x, y,
-         data_month['u'], data_month['v'])
+q = ax.quiver(x, y, u_norm, v_norm)
 
 # Set extent
 ax.set_extent([103, 107, -0.35, 2.5])
@@ -58,6 +61,6 @@ gl.ylabels_right = False
 
 # Set a title and show the plot
 ax.set_title('Wind speed (m/s) and direction at '
-             + time[0].dt.strftime('%Y-%m').item())
+             + time[time_idx].dt.strftime('%Y-%m').item())
 plt.show()
 
